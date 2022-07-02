@@ -11,6 +11,9 @@ module.exports = {
           950: '#27304E',
           1000: '#030F2E'
         }
+      },
+      gridTemplateRows: {
+        page: 'auto 1fr auto',
       }
     },
   },

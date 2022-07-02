@@ -1,0 +1,10 @@
+{
+  "hosting": {
+    "public": "https://github.com/stephen-ics/concerto",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}
