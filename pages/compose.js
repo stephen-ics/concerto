@@ -11,12 +11,11 @@ const compose = () => {
 		const { eventImage, ...documentData } = Object.fromEntries(
 			new FormData(event.target)
 		);
-		console.log(documentData);
 
-		const document = await addDoc(
-			collection(firestore, 'events'),
-			documentData
-		);
+		const document = await addDoc(collection(firestore, 'events'), {
+			...documentData,
+			winningBid: '',
+		});
 
 		const imageRef = ref(storage, `event-thumbnails/${document.id}`); // Janky file uploads
 		await uploadBytes(imageRef, eventImage);

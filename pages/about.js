@@ -52,6 +52,6 @@ const about = () => {
 			</section>
 		</div>
 	);
-}; // Steven you have no path to these images, where r they at?? hm
+};
 
 export default about;

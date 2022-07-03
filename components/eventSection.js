@@ -1,10 +1,19 @@
 import React from 'react';
-import { useState } from 'react';
-import { updateDoc, arrayUnion, collection, doc } from 'firebase/firestore';
+import { getDoc, doc } from 'firebase/firestore';
 import { firestore } from '../lib/firebase';
 import { useAuthProvider } from './context/AuthContext';
+import { useReducer, useEffect } from 'react';
 
 const API = (relativePath) => '/api' + relativePath;
+
+const bidReducer = (state, action) => {
+	switch (action.type) {
+		case 'user':
+			return { ...state, user: action.payload };
+		case 'bid':
+			return { ...state, bid: action.payload };
+	}
+};
 
 const EventSection = ({
 	title = 'Unkown title',
@@ -19,10 +28,19 @@ const EventSection = ({
 	winningBid,
 }) => {
 	const { user } = useAuthProvider();
+	const [eventBidState, dispatch] = useReducer(bidReducer, {
+		bidAmount: null,
+		user: null,
+	});
 
 	const handleSubmit = async (event) => {
 		event.preventDefault();
-		const data = Object.fromEntries(new FormData(event.target));
+		let data = Object.fromEntries(new FormData(event.target));
+
+		data = {
+			...data,
+			bidAmount: Number(data.bidAmount),
+		};
 
 		const response = await fetch(API('/bid'), {
 			method: 'POST',
@@ -30,9 +48,9 @@ const EventSection = ({
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify({
-				event: { id, winningBid },
+				event: { id, winningBid, title },
 				bid: {
-					user_id: user.uid,
+					user: user.uid,
 					...data,
 				},
 			}),
@@ -41,11 +59,33 @@ const EventSection = ({
 		const responseData = await response.json();
 		console.log(responseData);
 
-		if (responseData.ok) {
-			console.log('All went well');
+		if (!response.ok) {
+			alert('Your bid was too low');
 			return;
 		}
+
+		alert('you were succesffull');
 	};
+
+	useEffect(() => {
+		(async () => {
+			console.log(firestore, winningBid);
+			if (!winningBid) return;
+
+			const { user, ...winningBidDocument } = (
+				await getDoc(doc(firestore, 'bids', winningBid))
+			).data();
+
+			console.log(user);
+
+			const winningUserDocument = (
+				await getDoc(doc(firestore, 'userInfo', user))
+			).data();
+
+			dispatch({ type: 'bid', payload: winningBidDocument });
+			dispatch({ type: 'user', payload: winningUserDocument });
+		})();
+	}, [winningBid]);
 
 	if (!user) {
 		return <h1>No u</h1>;
@@ -80,7 +120,12 @@ const EventSection = ({
 				<fieldset className="flex flex-col">
 					<label className="label text-white text-2xl mb-2">
 						<span className="label-text">
-							Highest Bid: {highestBid || 'N/A'}
+							Highest Bid:{' '}
+							{(eventBidState.bid &&
+								eventBidState.bid.bidAmount) ||
+								'N/A'}{' '}
+							person:{' '}
+							{eventBidState.user && eventBidState.user.Username}
 						</span>
 					</label>
 					<input

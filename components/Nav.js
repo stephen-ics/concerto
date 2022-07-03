@@ -34,9 +34,7 @@ const Nav = () => {
 					</li>
 					<li>
 						{user ? (
-							<Link href="/profile">
-								<UserPreview {...user} />
-							</Link>
+							<UserPreview {...user} />
 						) : loading ? (
 							'loading...'
 						) : (
