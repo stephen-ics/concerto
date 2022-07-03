@@ -1,10 +1,22 @@
 import React from 'react'
+import { useState } from 'react'
+import { addDoc, collection} from 'firebase/firestore'
+import { firestore } from '../lib/firebase'
 
-const accountPage = () => {
+const compose = () => {
+
+    const handleSubmit = async (event) => {   
+        event.preventDefault();  
+        const data = Object.fromEntries(new FormData(event.target));
+        console.log(data)
+        const document = await addDoc(collection(firestore, "events"), data)
+        console.log(document)
+    }
+
   return (
     <div className="bg-blue-950 h-full overflow-auto">
         <h1 className="text-4xl text-white mt-12">Host Your Own Concert!</h1>
-        <form>
+        <form onSubmit={handleSubmit}>
             <fieldset className="flex flex-col my-4">
                 <label className="label mb-2 text-white text-2xl">
                     <span className="label-text">Concert Name</span>
@@ -53,4 +65,4 @@ const accountPage = () => {
   )
 }
 
-export default accountPage
+export default compose

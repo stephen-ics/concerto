@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState } from 'react';
-import { setDoc, collection, doc } from 'firebase/firestore'
+import { addDoc, collection, doc } from 'firebase/firestore'
 import { firestore } from '../lib/firebase'
 import { useAuthProvider } from '../components/context/AuthContext'
 
@@ -17,13 +17,9 @@ const accountPage = () => {
         };
 
         console.log(info)
-        console.log("UID:", user.uid)
-        // const document = await setDoc(doc(firestore, "userInfo", user.uid), info)
+        const document = await addDoc(doc(firestore, "userInfo", user.uid), info)
         console.log(document)
     }
-
-    console.log("hello???????????????/")
-
 
     return (
         <div className="bg-blue-950 h-full overflow-auto">

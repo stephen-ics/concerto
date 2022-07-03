@@ -1,23 +1,28 @@
 import { useContext, createContext } from 'react'
-import { useSignInWithGoogle } from 'react-firebase-hooks/auth'
-import { auth } from '../../lib/firebase'
-import { signOut } from 'firebase/auth'
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { useCollection } from 'react-firebase-hooks/firestore'
+import { auth, firestore } from '../../lib/firebase'
+import { query, where, collection } from 'firebase/firestore'
+import { signOut, signInWithRedirect, GoogleAuthProvider } from 'firebase/auth'
 
 const AuthorizationContext = createContext({});
 
 const AuthProvider = ({ children }) => {
-    const [signInWithGoogle, user, loading, error] = useSignInWithGoogle(auth);
+    const [user, loading, error] = useAuthState(auth);
+    
+
+    const provider = new GoogleAuthProvider();
 
     const signIn = () => {
-        signInWithGoogle()
+        signInWithRedirect(auth, provider);
     }
 
-    const logout = () => {
+    const logout = async () => {
         signOut(auth);
     }
     
     return (
-        <AuthorizationContext.Provider value={{logout, signIn, user, loading, error}}>
+        <AuthorizationContext.Provider value={{ logout, signIn, user, loading, error }}>
             {children}
         </AuthorizationContext.Provider>
     )
